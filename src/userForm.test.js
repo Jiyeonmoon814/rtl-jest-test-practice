@@ -2,6 +2,11 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import UserForm from "./UserForm";
 
+// mock function - doesn't do anything
+// records whenever it gets called, and the arguments it was called with
+// used when we need to make sure a component calls a callback
+const onUserAdd = jest.fn();
+
 it("shows two inputs and a button", () => {
   // render the component
   render(<UserForm />);
@@ -23,11 +28,6 @@ it("calls onUserAdd when the form is submitted", () => {
   // const callback = (...args) => {
   //   argsList.push(args);
   // };
-
-  // mock function - doesn't do anything
-  // records whenever it gets called, and the arguments it was called with
-  // used when we need to make sure a component calls a callback
-  const onUserAdd = jest.fn();
 
   // try to render the component
   render(<UserForm onUserAdd={onUserAdd} />);
@@ -61,4 +61,27 @@ it("calls onUserAdd when the form is submitted", () => {
     name: "jane",
     email: "jane@jane.com",
   });
+});
+
+it("empties the two inputs when form is submitted", () => {
+  render(<UserForm onUserAdd={onUserAdd} />);
+
+  const nameInput = screen.getByLabelText(/name/i);
+  const emailInput = screen.getByRole("textbox", { name: /email/i });
+
+  // simulate typing in a name
+  userEvent.click(nameInput);
+  userEvent.keyboard("jane");
+
+  // simulate typing in an email
+  userEvent.click(emailInput);
+  userEvent.keyboard("jane@jane.com");
+
+  // simulate clicking the button
+  const button = screen.getByRole("button");
+  userEvent.click(button);
+
+  // expect the values become empty
+  expect(nameInput).toHaveValue("");
+  expect(emailInput).toHaveValue("");
 });
