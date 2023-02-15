@@ -1,9 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import UserList from "./UserList";
-import userEvent from "@testing-library/user-event";
 
-it("renders one row per user", () => {
-  // render the component
+function renderComponent() {
   const users = [
     {
       name: "jane",
@@ -11,8 +9,16 @@ it("renders one row per user", () => {
     },
     { name: "sam", email: "sam@sam.com" },
   ];
-
   render(<UserList users={users} />);
+
+  return {
+    users,
+  };
+}
+
+it("renders one row per user", () => {
+  // render the component
+  renderComponent();
 
   // html element
   // const { container } = render(<UserList users={users} />);
@@ -40,4 +46,15 @@ it("renders one row per user", () => {
   expect(rows).toHaveLength(2);
 });
 
-it("renders the email and name of each user", () => {});
+it("renders the email and name of each user", () => {
+  // render the component
+  const { users } = renderComponent();
+
+  for (let user of users) {
+    const name = screen.getByRole("cell", { name: user.name });
+    const email = screen.getByRole("cell", { name: user.email });
+
+    expect(name).toBeInTheDocument();
+    expect(email).toBeInTheDocument();
+  }
+});
