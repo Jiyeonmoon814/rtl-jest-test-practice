@@ -17,20 +17,27 @@ it("shows two inputs and a button", () => {
   // what we expect it to do
 });
 
-it("calls onUserAdd when the form is submitted", async () => {
+it("calls onUserAdd when the form is submitted", () => {
   // not the best implementation, but it works
-  const argsList = [];
-  const callback = (...args) => {
-    argsList.push(args);
-  };
+  // const argsList = [];
+  // const callback = (...args) => {
+  //   argsList.push(args);
+  // };
 
+  // mock function - doesn't do anything
+  // records whenever it gets called, and the arguments it was called with
+  // used when we need to make sure a component calls a callback
   const onUserAdd = jest.fn();
 
   // try to render the component
   render(<UserForm onUserAdd={onUserAdd} />);
 
-  // find the twon inputs
-  const [nameInput, emailInput] = screen.getAllByRole("textbox");
+  // find the two inputs
+  // it's easy to break if the order is changed
+  //const [nameInput, emailInput] = screen.getAllByRole("textbox");
+
+  const nameInput = screen.getByLabelText(/name/i);
+  const emailInput = screen.getByRole("textbox", { name: /email/i });
 
   // simulate typing in a name
   userEvent.click(nameInput);
@@ -47,9 +54,11 @@ it("calls onUserAdd when the form is submitted", async () => {
   const button = screen.getByRole("button");
 
   // simulate clicking the button
-  await userEvent.click(button);
+  userEvent.click(button);
 
   // assertion to make sure onuseradd was called
-  expect(argsList).toHaveLength(1);
-  expect(argsList[0][0]).toEqual({ name: "jane", email: "jane@jane.com" });
+  expect(onUserAdd).toHaveBeenCalledWith({
+    name: "jane",
+    email: "jane@jane.com",
+  });
 });
